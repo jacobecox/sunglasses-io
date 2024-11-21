@@ -25,11 +25,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Route to authenticate users and generate JWT token
 app.post('/login', (req, res) => {
-  const { username } = req.body;
+  const { username, password } = req.body; //pull username and password from request
+	const user = users.find(u => u.login.username === username); //searching for user with username which match request
 
-	const user = users.find(u => u.username === username);
-
-  if (!user || user.password !== password) {
+  if (!user || user.password !== password) { // if password or username don't match or don't exist, give error 401
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
@@ -37,10 +36,11 @@ app.post('/login', (req, res) => {
   const token = jwt.sign(
     { username: user.username },
     process.env.JWT_SECRET,  // Using a secret key from environment variables
-    { expiresIn: '1h' }     // Set token expiration
+    { expiresIn: '1h' }
   );
-
-  res.status(200).json({ token });
+  console.log('Generated Token:', token);  // This will print the token in the server logs
+  
+  res.status(200).json({ token }); // response to be returned
 });
 
 
