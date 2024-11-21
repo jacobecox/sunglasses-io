@@ -28,7 +28,7 @@ app.post('/login', (req, res) => {
   const { username, password } = req.body; //pull username and password from request
 	const user = users.find(u => u.login.username === username); //searching for user with username which match request
 
-  if (!user || user.password !== password) { // if password or username don't match or don't exist, give error 401
+  if (!user || user.login.password !== password) { // if password or username don't match or don't exist, give error 401
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
@@ -38,7 +38,6 @@ app.post('/login', (req, res) => {
     process.env.JWT_SECRET,  // Using a secret key from environment variables
     { expiresIn: '1h' }
   );
-  console.log('Generated Token:', token);  // This will print the token in the server logs
   
   res.status(200).json({ token }); // response to be returned
 });
