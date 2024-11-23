@@ -4,6 +4,7 @@ const server = require('../app/server'); // Adjust the path as needed
 const expect = chai.expect;
 chai.use(chaiHttp);
 
+
 describe('Brands', () => {
   // Test for GET /api/brands
   // describe('/GET brand', () => {
@@ -38,15 +39,32 @@ describe('Login', () => {
             done();
           });
       });
-    // it('should not GET user if not logged in', (done) => {})
 });
 
 describe('Cart', () => {
   // Test for GET /api/me/cart
-  // describe('/GET cart', () => {
-  //   it('should not GET cart if not logged in', (done) => {})
-  //   it('should GET all items in the cart', (done) => {})
-  // })
+  describe('/GET cart', () => {
+    it('should not GET cart if the user is not logged in', (done) => {
+      chai.request(server)
+      .get('/cart')
+      .set('Authorization', 'Bearer invalidtoken')  // Pass an invalid token
+      .end((err, res) => {
+        expect(res).to.have.status(401);  // Expect 401 Unauthorized
+        done();
+    })
+  })
+    it('should GET all items in the cart if the user is logged in', (done) => {
+      chai.request(server)
+      .get('/cart')
+      .set('Authorization', `Bearer ${token}`)
+      .end(function(err, res) {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.an('array')
+        expect(res.body.length).to.be.greaterThan(0)
+        done();
+    })
+  })
+  })
   // Test for POST /api/me/cart
   // describe('/POST cart', () => {
   //   it('should not POST item if not logged in', (done) => {})
@@ -59,5 +77,4 @@ describe('Cart', () => {
   //   it('should DELETE items by id from the cart', (done) => {})
   //   it('should not DELETE item if id does not exist', (done) => {})
   // })
-
 });
