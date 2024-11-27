@@ -38,13 +38,21 @@ app.post('/login', (req, res) => {
     process.env.JWT_SECRET,  // Using a secret key from environment variables
     { expiresIn: '1h' }
   );
+
+  console.log('token:', token)
+
+  res.set('Authorization', `Bearer ${token}`);
   
-  res.status(200).json({ token }); // Response to be returned
+  return res.status(200).json({ token: token }); // Response to be returned
 });
+
 
 // Route to authenticate token and get cart
 app.get('/cart', (req, res) => {
-  const token = req.headers['authorization']?.split('')[1]; // Get token from Authorization header
+  const token = req.headers['authorization']?.split(' ')[1]; // Get token from Authorization header
+
+  // Trying to figure out why the 'authorization: bearer token' is returning undefined
+  console.log('headers:', req.headers)
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided' })

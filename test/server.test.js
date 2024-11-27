@@ -54,6 +54,20 @@ describe('Cart', () => {
     })
   })
     it('should GET all items in the cart if the user is logged in', (done) => {
+      let token // Fetch and store token from login to use for cart test
+
+      before((done) => {
+        const userData = { username: 'yellowleopard753', password: 'jonjon' };
+
+        chai.request(server)
+          .post('/login')
+          .send(userData)
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            token = res.body.token;  // Save the token from the response body
+            done();
+          });
+        })
       chai.request(server)
       .get('/cart')
       .set('Authorization', `Bearer ${token}`)
