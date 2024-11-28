@@ -47,7 +47,7 @@ describe('Cart', () => {
     it('should not GET cart if the user is not logged in', (done) => {
       chai.request(server)
       .get('/cart')
-      .set('Authorization', 'Bearer invalidtoken')  // Pass an invalid token
+      .set('authorization', 'bearer invalidtoken')  // Pass an invalid token
       .end((err, res) => {
         expect(res).to.have.status(401);  // Expect 401 Unauthorized
         done();
@@ -64,13 +64,13 @@ describe('Cart', () => {
           .send(userData)
           .end((err, res) => {
             expect(res).to.have.status(200);
-            token = res.body.token;  // Save the token from the response body
+            token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });  // Save the token from the response body
             done();
           });
         })
       chai.request(server)
       .get('/cart')
-      .set('Authorization', `Bearer ${token}`)
+      .set('authorization', `bearer ${token}`)
       .end(function(err, res) {
         expect(res).to.have.status(200);
         expect(res.body).to.be.an('array')

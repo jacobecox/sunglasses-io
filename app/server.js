@@ -41,7 +41,7 @@ app.post('/login', (req, res) => {
 
   console.log('token:', token)
 
-  res.set('Authorization', `Bearer ${token}`);
+  res.set('authorization', `bearer ${token}`);
   
   return res.status(200).json({ token: token }); // Response to be returned
 });
@@ -66,6 +66,7 @@ app.get('/cart', (req, res) => {
     
     // Retrieve cart items for user
     const userCart = getUserCart(decoded.username);
+    console.log('cart:',userCart)
     res.status(200).json(userCart);  // Send the cart items in the response
   })
 })
