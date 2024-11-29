@@ -57,13 +57,16 @@ app.get('/cart', (req, res) => {
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).json({ message: 'Invalid or expired token' })
-    }
+    } 
+    
 
     // Function to get the user's cart
     const getUserCart = (username) => {
         const user = users.find((u) => u.login.username === username); // Find the user by username
         return user.cart; // Return the cart
     };
+
+    
     
     // Retrieve cart items for user
     const userCart = getUserCart(decoded.username);

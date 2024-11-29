@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const server = require('../app/server'); // Adjust the path as needed
 const expect = chai.expect;
 chai.use(chaiHttp);
+const jwt = require('jsonwebtoken');
 
 
 describe('Brands', () => {
