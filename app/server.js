@@ -39,9 +39,7 @@ app.post('/login', (req, res) => {
     { expiresIn: '1h' }
   );
 
-  console.log('token:', token)
-
-  res.set('authorization', `bearer ${token}`);
+  res.set('authorization', token);
   
   return res.status(200).json({ token: token }); // Response to be returned
 });
@@ -49,10 +47,7 @@ app.post('/login', (req, res) => {
 
 // Route to authenticate token and get cart
 app.get('/cart', (req, res) => {
-  const token = req.headers['authorization']?.split(' ')[1]; // Get token from Authorization header
-
-  // Trying to figure out why the 'authorization: bearer token' is returning undefined
-  console.log('headers:', req.headers)
+  const token = req.headers['authorization']; // Get token from Authorization header
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided' })
@@ -63,10 +58,15 @@ app.get('/cart', (req, res) => {
     if (err) {
       return res.status(401).json({ message: 'Invalid or expired token' })
     }
+
+    // Function to get the user's cart
+    const getUserCart = (username) => {
+        const user = users.find((u) => u.login.username === username); // Find the user by username
+        return user.cart; // Return the cart
+    };
     
     // Retrieve cart items for user
     const userCart = getUserCart(decoded.username);
-    console.log('cart:',userCart)
     res.status(200).json(userCart);  // Send the cart items in the response
   })
 })
