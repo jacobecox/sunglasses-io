@@ -74,6 +74,37 @@ app.get('/cart', (req, res) => {
   })
 })
 
+app.post('/cart', (req, res) => {
+
+  console.log('POST /cart called');
+  res.send('Route working!');
+  
+  const token = req.headers['authorization']; // Get token from Authorization header
+
+  const updateCart = (username, newItem) => {
+    const user = users.find((u) => u.login.username === username);
+    if (user) {
+      user.cart.push(newItem);
+    }
+  }
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' })
+  }
+
+  // Verify jwt token
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+    return res.status(401).json({ message: 'Invalid or expired token' })
+    } 
+    const newItem = {id, name, price, quantity}
+    const updateUserCart = updateCart(decoded.username, newItem)
+
+    res.status(200).json({ message: 'Item added to cart', newItem });
+    res.json(updateUserCart)
+  })
+})
+
 
 // Starting the server
 const PORT = process.env.PORT || 3000;
