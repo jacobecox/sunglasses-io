@@ -106,7 +106,7 @@ describe('Cart', () => {
       expect(res.body.message).to.equal('Item added to cart');
       expect(res.body.newItem).to.deep.equal(newItem); // Body must include newItem
 
-    it('should update quantity if item already exists in cart', (done) => {})
+    // it('should update quantity if item already exists in cart', (done) => {})
   })
   // Test for DELETE /api/me/cart
   // describe('/DELETE cart', () => {

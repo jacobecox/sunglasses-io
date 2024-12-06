@@ -52,21 +52,20 @@ app.get('/cart', (req, res) => {
   if (!token) {
     return res.status(401).json({ message: 'No token provided' })
   }
+  
 
   // Verify jwt token
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+
     if (err) {
       return res.status(401).json({ message: 'Invalid or expired token' })
-    } 
+    }
     
-
     // Function to get the user's cart
     const getUserCart = (username) => {
         const user = users.find((u) => u.login.username === username); // Find the user by username
         return user.cart; // Return the cart
     };
-
-    
     
     // Retrieve cart items for user
     const userCart = getUserCart(decoded.username);
@@ -74,20 +73,11 @@ app.get('/cart', (req, res) => {
   })
 })
 
+// Route to add an item to user's cart
 app.post('/cart', (req, res) => {
-
-  console.log('POST /cart called');
-  res.send('Route working!');
   
   const token = req.headers['authorization']; // Get token from Authorization header
-
-  const updateCart = (username, newItem) => {
-    const user = users.find((u) => u.login.username === username);
-    if (user) {
-      user.cart.push(newItem);
-    }
-  }
-
+  
   if (!token) {
     return res.status(401).json({ message: 'No token provided' })
   }
@@ -97,11 +87,37 @@ app.post('/cart', (req, res) => {
     if (err) {
     return res.status(401).json({ message: 'Invalid or expired token' })
     } 
-    const newItem = {id, name, price, quantity}
-    const updateUserCart = updateCart(decoded.username, newItem)
 
-    res.status(200).json({ message: 'Item added to cart', newItem });
-    res.json(updateUserCart)
+    const { newItem } = req.body 
+
+    console.log('newItem:', newItem)
+
+    
+
+  try {
+    const updateCart = (username, newItem) => {
+    const user = users.find((u) => u.login.username === username);
+    if (user) {
+      user.cart.push({
+        id: newItem.id,
+        quantity: newItem.quantity,
+        name: newItem.name,
+        description: newItem.description,
+        price: newItem.price,
+      });
+      console.log('user:', user)
+    }
+    }
+    
+    const updateUserCart = () => {
+    return updateCart(decoded.username, newItem)
+    }
+
+    res.status(200).json({ message: 'Item added to cart', cart: updateUserCart });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
   })
 })
 
