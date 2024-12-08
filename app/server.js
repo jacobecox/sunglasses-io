@@ -34,7 +34,7 @@ app.post('/login', (req, res) => {
 
   // Generate a JWT token with user data
   const token = jwt.sign(
-    { username: user.username },
+    { username: user.login.username },
     process.env.JWT_SECRET,  // Using a secret key from environment variables
     { expiresIn: '1h' }
   );
@@ -56,17 +56,22 @@ app.get('/cart', (req, res) => {
 
   // Verify jwt token
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    console.log('GET decoded token:', decoded)
 
     if (err) {
       return res.status(401).json({ message: 'Invalid or expired token' })
     }
     
+    
     // Function to get the user's cart
     const getUserCart = (username) => {
         const user = users.find((u) => u.login.username === username); // Find the user by username
+        if (!user) {
+          return res.status(404).json({message: 'User not found'})
+        }
         return user.cart; // Return the cart
     };
-    
+
     // Retrieve cart items for user
     const userCart = getUserCart(decoded.username);
     res.status(200).json(userCart);  // Send the cart items in the response
@@ -75,45 +80,46 @@ app.get('/cart', (req, res) => {
 
 // Route to add an item to user's cart
 app.post('/cart', (req, res) => {
-  
+
   const token = req.headers['authorization']; // Get token from Authorization header
-  
+
   if (!token) {
     return res.status(401).json({ message: 'No token provided' })
   }
 
   // Verify jwt token
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    
+    console.log('POST decoded token:', decoded)
+
     if (err) {
     return res.status(401).json({ message: 'Invalid or expired token' })
     } 
 
-    const { newItem } = req.body 
-
-    console.log('newItem:', newItem)
+    const { newItem } = req.body
+    console.log('new item:', newItem)
 
     
-
   try {
-    const updateCart = (username, newItem) => {
-    const user = users.find((u) => u.login.username === username);
-    if (user) {
-      user.cart.push({
-        id: newItem.id,
-        quantity: newItem.quantity,
-        name: newItem.name,
-        description: newItem.description,
-        price: newItem.price,
-      });
-      console.log('user:', user)
+    const user = users.find((u) => u.login.username === decoded.username);
+   
+    if (!user) {
+      return res.status(404).json({message: 'User not found'})
     }
+    if (!user.cart) {
+      user.cart = [];
     }
-    
-    const updateUserCart = () => {
-    return updateCart(decoded.username, newItem)
-    }
+    user.cart.push({
+      id: newItem.id,
+      quantity: newItem.quantity,
+      name: newItem.name,
+      description: newItem.description,
+      price: newItem.price
+    });
 
-    res.status(200).json({ message: 'Item added to cart', cart: updateUserCart });
+    console.log('cart:', user.cart)
+
+    res.status(200).json({ message: 'Item added to cart', cart: user.cart });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });

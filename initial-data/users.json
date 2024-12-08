@@ -8,6 +8,13 @@
         "name": "Superglasses",
         "description": "The best glasses in the world",
         "price": 150
+      },
+      {
+        "id": "4",
+        "quantity": "2",
+        "name": "Better glasses",
+        "description": "The best glasses in the world",
+        "price": 1500
       }
     ],
     "name": {
@@ -43,7 +50,15 @@
   },
   {
     "gender": "male",
-    "cart": [],
+    "cart": [
+      {
+        "id": "2",
+        "quantity": "1",
+        "name": "Black Sunglasses",
+        "description": "The best glasses in the world",
+        "price": 100
+      }
+    ],
     "name": {
       "title": "mr",
       "first": "salvador",
