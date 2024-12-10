@@ -1,10 +1,9 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../app/server'); // Adjust the path as needed
+const server = require('../app/server');
 const expect = chai.expect;
 chai.use(chaiHttp);
 const jwt = require('jsonwebtoken');
-
 
 describe('Brands', () => {
   // Test for GET /api/brands
@@ -74,39 +73,45 @@ describe('Cart', () => {
   describe('/POST cart', () => {
     it('should not POST item if not logged in', (done) => {
       const newItem = {
-        id: '2',
+        id: 2,
+        quantity: 1,
         name: 'Black Sunglasses',
-        price: 100,
-        quantity: 1
+        description: 'The best glasses in the world',
+        price: 100
       };
       chai.request(server)
       .post('/cart')
       .set('authorization', 'invalidtoken')  // Pass an invalid token
       .send(newItem)
-      expect(res.status).to.equal(401);
-      expect(res.body.message).to.equal('No token provided');
+      .end(function(err, res) {
+      expect(res.status).to.equal(401); // Should give unauthorized error
+      done()
+      })   
     })
-
-    it('should add item by id to the cart', (done) => {
+    it('should add item to the cart', (done) => {
       const token = jwt.sign(  // Fetch token from login
         { username: 'yellowleopard753', password: 'jonjon' },
         process.env.JWT_SECRET,
         { expiresIn: '1h' });
-      const newItem = { //  Item for test to pass into cart
-        id: '2',
+      const newItem = { //  Item for test to add to cart
+        id: 2,
+        quantity: 1,
         name: 'Black Sunglasses',
-        price: 100,
-        quantity: 1
+        description: 'The best glasses in the world',
+        price: 100
       };
       chai.request(server)
       .post('/cart')
-      .set('authorization', token)  // Pass an invalid token
+      .set('authorization', token)  // Pass login token
+      
       .send(newItem)
-      expect(res.status).to.equal(200);
-      expect(res.body.message).to.equal('Item added to cart');
-      expect(res.body.newItem).to.deep.equal(newItem); // Body must include newItem
-
-    // it('should update quantity if item already exists in cart', (done) => {})
+      .end(function(err, res) {
+        expect(res.status).to.equal(200);
+        expect(res.body).to.have.property('message', 'Item added to cart');
+        expect(res.body.cart).to.be.an('array').that.deep.includes(newItem); // Must include item added to cart in the cart array
+        done()
+      })
+    it('should update quantity if item already exists in cart', (done) => {}) 
   })
   // Test for DELETE /api/me/cart
   // describe('/DELETE cart', () => {

@@ -3,18 +3,11 @@
     "gender": "female",
     "cart": [
       {
-        "id": "1",
-        "quantity": "1",
+        "id": 1,
+        "quantity": 1,
         "name": "Superglasses",
         "description": "The best glasses in the world",
         "price": 150
-      },
-      {
-        "id": "4",
-        "quantity": "2",
-        "name": "Better glasses",
-        "description": "The best glasses in the world",
-        "price": 1500
       }
     ],
     "name": {
@@ -52,8 +45,8 @@
     "gender": "male",
     "cart": [
       {
-        "id": "2",
-        "quantity": "1",
+        "id": 2,
+        "quantity": 1,
         "name": "Black Sunglasses",
         "description": "The best glasses in the world",
         "price": 100

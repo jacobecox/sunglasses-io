@@ -56,7 +56,6 @@ app.get('/cart', (req, res) => {
 
   // Verify jwt token
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    console.log('GET decoded token:', decoded)
 
     if (err) {
       return res.status(401).json({ message: 'Invalid or expired token' })
@@ -89,16 +88,12 @@ app.post('/cart', (req, res) => {
 
   // Verify jwt token
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    
-    console.log('POST decoded token:', decoded)
 
     if (err) {
     return res.status(401).json({ message: 'Invalid or expired token' })
     } 
 
     const { newItem } = req.body
-    console.log('new item:', newItem)
-
     
   try {
     const user = users.find((u) => u.login.username === decoded.username);
@@ -116,8 +111,6 @@ app.post('/cart', (req, res) => {
       description: newItem.description,
       price: newItem.price
     });
-
-    console.log('cart:', user.cart)
 
     res.status(200).json({ message: 'Item added to cart', cart: user.cart });
   } catch (error) {
