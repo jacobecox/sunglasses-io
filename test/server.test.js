@@ -9,7 +9,7 @@ describe('Brands', () => {
   // Test for GET /api/brands
   // describe('/GET brand', () => {
   //   it('should GET all brands', (done) => {})
-  //   it('should GET products for a specific brand id', (done) => {})
+  //   it('should GET products for selected brand', (done) => {})
   // })
 });
 
@@ -41,6 +41,7 @@ describe('Login', () => {
       });
 });
 
+// Tests for cart
 describe('Cart', () => {
   // Test for GET /api/me/cart
   describe('/GET cart', () => {
@@ -69,6 +70,7 @@ describe('Cart', () => {
     })
   })
   })
+
   // Test for POST /api/me/cart
   describe('/POST cart', () => {
     it('should not POST item if not logged in', (done) => {
@@ -103,16 +105,41 @@ describe('Cart', () => {
       chai.request(server)
       .post('/cart')
       .set('authorization', token)  // Pass login token
-      
-      .send(newItem)
+      .send({newItem})
       .end(function(err, res) {
         expect(res.status).to.equal(200);
         expect(res.body).to.have.property('message', 'Item added to cart');
         expect(res.body.cart).to.be.an('array').that.deep.includes(newItem); // Must include item added to cart in the cart array
         done()
+      }) ;
       })
-    it('should update quantity if item already exists in cart', (done) => {}) 
-  })
+    it('should update quantity if item already exists in cart', (done) => {
+      const token = jwt.sign(  // Fetch token from login
+        { username: 'yellowleopard753', password: 'jonjon' },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' });
+      const cartItem = { //  Item for test to add to cart
+        id: 1,
+        quantity: 1,
+        name: 'Superglasses',
+        description: 'The best glasses in the world',
+        price: 150
+      }
+      const updatedItem = { ...cartItem, quantity: 3 } // Increasing item quantity
+      chai.request(server)
+      .post('/cart')
+      .set('authorization', token)
+      .send({cartItem: updatedItem}) 
+      .end((err, res) => {
+        expect(res.status).to.equal(200)
+        expect(res.body).to.have.property('message', 'Item added to cart')
+        const updatedCart = res.body.cart
+        const cartItem = updatedCart.find((item) => item.id === cartItem.id)
+        expect(cartItem).to.exist
+        expect(cartItem.quantity).to.equal(updatedItem.quantity) // Check to see if quantity is updated
+        done();
+      });
+  });
   // Test for DELETE /api/me/cart
   // describe('/DELETE cart', () => {
   //   it('should DELETE items by id from the cart', (done) => {})
