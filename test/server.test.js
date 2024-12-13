@@ -118,23 +118,23 @@ describe('Cart', () => {
         { username: 'yellowleopard753', password: 'jonjon' },
         process.env.JWT_SECRET,
         { expiresIn: '1h' });
-      const cartItem = { //  Item for test to add to cart
+      const initialItem = { //  Item for test to add to cart
         id: 1,
         quantity: 1,
         name: 'Superglasses',
         description: 'The best glasses in the world',
         price: 150
       }
-      const updatedItem = { ...cartItem, quantity: 3 } // Increasing item quantity
+      const updatedItem = { ...initialItem, quantity: 2 } // Increasing item quantity
       chai.request(server)
       .post('/cart')
       .set('authorization', token)
-      .send({cartItem: updatedItem}) 
-      .end((err, res) => {
+      .send({newItem: initialItem}) 
+      .end((err, res) => { 
         expect(res.status).to.equal(200)
         expect(res.body).to.have.property('message', 'Item added to cart')
         const updatedCart = res.body.cart
-        const cartItem = updatedCart.find((item) => item.id === cartItem.id)
+        const cartItem = updatedCart.find((item) => item.id === initialItem.id)
         expect(cartItem).to.exist
         expect(cartItem.quantity).to.equal(updatedItem.quantity) // Check to see if quantity is updated
         done();

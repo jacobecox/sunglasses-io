@@ -104,13 +104,23 @@ app.post('/cart', (req, res) => {
     if (!user.cart) {
       user.cart = [];
     }
-    user.cart.push({
-      id: newItem.id,
-      quantity: newItem.quantity,
-      name: newItem.name,
-      description: newItem.description,
-      price: newItem.price
-    });
+
+    const existingItem = user.cart.find((item) => item.id === newItem.id);
+
+    if (existingItem) {
+      existingItem.quantity += newItem.quantity
+    }
+
+    else {
+
+      user.cart.push({
+        id: newItem.id,
+        quantity: newItem.quantity,
+        name: newItem.name,
+        description: newItem.description,
+        price: newItem.price
+      });
+    } 
 
     res.status(200).json({ message: 'Item added to cart', cart: user.cart });
   } catch (error) {
