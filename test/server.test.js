@@ -7,10 +7,10 @@ const jwt = require('jsonwebtoken');
 
 describe('Brands', () => {
   // Test for GET /api/brands
-  // describe('/GET brand', () => {
-  //   it('should GET all brands', (done) => {})
-  //   it('should GET products for selected brand', (done) => {})
-  // })
+  describe('/GET brand', () => {
+    it('should GET all brands', (done) => {})
+    it('should GET products for selected brand', (done) => {})
+  })
 });
 
 describe('Login', () => { 
@@ -140,9 +140,56 @@ describe('Cart', () => {
         done();
       });
   });
+})
+
   // Test for DELETE /api/me/cart
-  // describe('/DELETE cart', () => {
-  //   it('should DELETE items by id from the cart', (done) => {})
-  //   it('should not DELETE item if id does not exist', (done) => {})
-  })
+  describe('/DELETE cart', () => {
+    it('should return 401 if no token is provided', (done) => {
+      chai.request(server)
+        .delete('/cart:1')
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body).to.have.property('message', 'No token provided');
+          done();
+        });
+    });
+    it('should return 404 if item does not exist', (done) => {
+      const token = jwt.sign(  // Fetch token from login
+        { username: 'yellowleopard753', password: 'jonjon' },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' });
+      chai.request(server)
+        .delete('/cart:777') // Delete item with non-existent id
+        .set('authorization', token)
+        .end((err, res) => {
+          expect(res.status).to.equal(404),
+          expect(res.body).to.have.property('message', 'Item not found in cart')
+          done();
+        })
+    })
+    it('should DELETE items by id from the cart', (done) => {
+      const token = jwt.sign(  // Fetch token from login
+        { username: 'yellowleopard753', password: 'jonjon' },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' });
+      const existingItem = { // Create item to be present in cart
+        id: 1,
+        quantity: 2,
+        name: 'Superglasses',
+        description: 'The best glasses in the world',
+        price: 150,
+      };
+      const cart = [existingItem]; // Set item in cart
+      chai.request(server)
+        .delete(`/cart${existingItem.id}`)
+        .set('authorization', token)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body).to.have.property('message', 'Item removed from cart');
+          expect(res.body.cart).to.be.an('array');
+          expect(res.body.cart).to.not.deep.include(existingItem); // Check to make sure item no longer exists in cart
+          done();
+        })
+    })
+})
 });

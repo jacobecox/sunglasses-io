@@ -130,6 +130,37 @@ app.post('/cart', (req, res) => {
   })
 })
 
+app.delete('/cart:itemId', (req, res) => {
+  const token = req.headers['authorization']; // Get token from Authorization header
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' })
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+
+    if (err) {
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+    
+    const { itemId } = req.params;
+    const user = users.find((u) => u.login.username === decoded.username)
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const itemIndex = user.cart.findIndex((item) => item.id === parseInt(itemId))
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: 'Item not found in cart'})
+    }
+
+    user.cart.splice(itemIndex, 1)
+    res.status(200).json({message: 'Item removed from cart', cart: user.cart})
+  })
+})
+
 
 // Starting the server
 const PORT = process.env.PORT || 3000;
