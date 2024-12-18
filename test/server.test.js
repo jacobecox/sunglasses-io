@@ -7,10 +7,28 @@ const jwt = require('jsonwebtoken');
 
 describe('Brands', () => {
   // Test for GET /api/brands
-  describe('/GET brand', () => {
-    it('should GET all brands', (done) => {})
-    it('should GET products for selected brand', (done) => {})
-  })
+    it('should GET all brands', (done) => {
+      chai.request(server)
+      .get('/brands')
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.an('array'); // brands should be in an array 
+        expect(res.body.length).to.be.greaterThan(0); // Check if at least 1 brand exists
+        done();
+      })
+    })
+    it('should GET products for selected brand', (done) => {
+      const brandId = 1
+      chai.request(server)
+      .get(`/products?brandId=${brandId}`) // send brandId as a query parameter
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        res.body.forEach(product => { // Check to see if each product has the brandId property
+          expect(product).to.have.property('categoryId', brandId)
+        })
+        done();
+      })
+    })
 });
 
 describe('Login', () => { 
@@ -96,7 +114,7 @@ describe('Cart', () => {
         process.env.JWT_SECRET,
         { expiresIn: '1h' });
       const newItem = { //  Item for test to add to cart
-        id: 2,
+        id: 1,
         quantity: 1,
         name: 'Black Sunglasses',
         description: 'The best glasses in the world',

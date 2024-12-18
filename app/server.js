@@ -22,6 +22,28 @@ app.use((err, req, res, next) => {
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Route to get brands
+app.get('/brands', (req, res) => {
+  res.status(200).json(brands);
+});
+
+// Route to get products by selected brand
+app.get('/products', (req, res) => {
+  const brandId = parseInt(req.query.brandId)
+
+  if(!brandId) {
+    return res.status(400).json({ message: 'Brand ID is required'})
+  }
+
+  const brandProducts = products.filter(product => product.categoryId === brandId)
+
+  if (brandProducts.length === 0) {
+    return res.status(404).json({ message: 'No products for this brand found'})
+  }
+
+  res.status(200).json(brandProducts)
+})
+
 
 // Route to authenticate users and generate JWT token
 app.post('/login', (req, res) => {
@@ -142,7 +164,7 @@ app.delete('/cart:itemId', (req, res) => {
     if (err) {
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
-    
+
     const { itemId } = req.params;
     const user = users.find((u) => u.login.username === decoded.username)
 
